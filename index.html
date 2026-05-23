@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khaidir - Financial Dashboard</title>
+    <link rel="icon" type="image/jpeg" href="dompet.jpg">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#b3f028',
+                        darkbg: '#0a0a0a',
+                        carddark: '#141414',
+                        cardlight: '#ffffff'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scan': 'scanBar 1.5s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px) scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        },
+                        scanBar: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-tr from-gray-100 via-slate-50 to-gray-200 dark:from-neutral-950 dark:via-darkbg dark:to-neutral-900 text-gray-900 dark:text-white min-h-screen flex items-center justify-center transition-colors duration-300 antialiased relative overflow-x-hidden">
+
+    <div id="splashScreen" class="fixed inset-0 bg-[#0a0a0a] z-[100] flex flex-col items-center justify-center transition-all duration-700 ease-in-out">
+        <div class="relative flex flex-col items-center justify-center animate-fade-in-up">
+            <div class="absolute w-40 h-40 bg-brand/20 blur-[50px] rounded-full z-0 animate-pulse-slow"></div>
+            <div class="w-20 h-20 bg-white dark:bg-carddark rounded-3xl flex items-center justify-center shadow-2xl border border-gray-800 z-10 mb-6 overflow-hidden relative">
+                <img src="dompet.jpg" alt="Logo" class="w-full h-full object-cover">
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tighter text-white z-10 drop-shadow-lg">
+                dompet<span class="text-brand font-medium">khaidir</span>
+            </h1>
+            <p class="text-[11px] text-gray-400 mt-2 z-10 tracking-[0.3em] uppercase font-semibold">Financial Dashboard</p>
+        </div>
+    </div>
+
+    <div id="faceIdScreen" class="fixed inset-0 bg-[#0a0a0a]/90 backdrop-blur-md z-[90] flex flex-col items-center justify-center transition-all duration-500 ease-in-out opacity-0" style="display: none;">
+        <div class="flex flex-col items-center gap-6">
+            <div class="relative w-24 h-24 flex items-center justify-center">
+                <i id="faceIcon" class="fas fa-expand text-5xl text-gray-400 transition-colors duration-300 relative z-10"></i>
+                <div id="scanLine" class="absolute w-full h-1 bg-brand shadow-[0_0_15px_#b3f028] z-20 animate-scan hidden"></div>
+                <div id="faceFrame" class="absolute inset-0 border-2 border-gray-600 rounded-2xl opacity-50 transition-colors duration-300"></div>
+            </div>
+            <p id="faceText" class="text-sm text-gray-300 font-medium tracking-wide animate-pulse">Memindai Wajah...</p>
+        </div>
+    </div>
+
+    <div class="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand/5 dark:bg-brand/[0.03] blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-500/5 dark:bg-blue-500/[0.02] blur-[120px] pointer-events-none z-0"></div>
+
+    <div class="w-full max-w-md min-h-screen sm:min-h-[850px] sm:my-6 relative shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] bg-gray-50 dark:bg-gradient-to-b dark:from-brand/15 dark:via-darkbg dark:to-darkbg sm:rounded-[40px] border dark:border-neutral-800/60 border-gray-200/80 overflow-hidden hide-scroll z-10 flex flex-col justify-between">
+        
+        <div>
+            <div class="flex justify-between items-center p-6">
+                <div class="flex items-center gap-3">
+                    <img src="dompet.jpg" alt="Logo Khaidir" class="w-12 h-12 rounded-full object-cover shadow-md bg-white border dark:border-neutral-800 border-gray-200">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Selamat Datang,</p>
+                        <h1 class="text-lg font-bold tracking-tight">Khaidir</h1>
+                    </div>
+                </div>
+                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full dark:bg-carddark bg-white border dark:border-neutral-800 border-gray-200 flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
+                    <i id="theme-icon" class="fas fa-moon text-gray-600 dark:text-gray-300"></i>
+                </button>
+            </div>
+
+            <div class="px-6 mb-5 space-y-4">
+                <div class="bg-brand rounded-3xl p-6 text-black shadow-[0_12px_40px_-12px_rgba(179,240,40,0.4)] relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3">
+                        <p class="font-semibold text-xs opacity-75 uppercase tracking-wider">Total Saldo Tersedia</p>
+                        <i class="fas fa-wallet text-lg opacity-70"></i>
+                    </div>
+                    <h2 class="text-4xl font-extrabold mb-1 tracking-tighter">Rp 20.000.000</h2>
+                    <div class="flex items-center gap-2 mt-3 text-xs font-bold bg-black/10 inline-flex px-3 py-1 rounded-full">
+                        <i class="fas fa-arrow-trend-up"></i> +12% Bulan ini
+                    </div>
+                </div>
+
+                <div class="dark:bg-[#1a2110] bg-green-50 rounded-3xl p-5 border dark:border-brand/20 border-green-200 shadow-sm relative overflow-hidden flex justify-between items-center">
+                    <div class="absolute right-[-10%] top-[-20%] w-24 h-24 bg-brand/20 rounded-full blur-xl pointer-events-none z-0"></div>
+                    <div class="relative z-10">
+                        <p class="font-semibold text-[10px] opacity-80 uppercase tracking-wider dark:text-brand text-green-700 mb-1">Total Saving (Tabungan)</p>
+                        <h2 class="text-2xl font-extrabold tracking-tighter dark:text-white text-gray-900">Rp 4.500.000</h2>
+                    </div>
+                    <div class="w-10 h-10 rounded-full dark:bg-brand/20 bg-green-200 flex items-center justify-center dark:text-brand text-green-700 relative z-10">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 mb-6">
+                <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Sisa Uang di Akun</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="dark:bg-carddark bg-white p-3 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md">BRI</span>
+                            <i class="fas fa-university text-[10px] text-gray-400"></i>
+                        </div>
+                        <p class="text-sm font-extrabold tracking-tight">Rp 5.200.000</p>
+                    </div>
+                    <div class="dark:bg-carddark bg-white p-3 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-extrabold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-md">BNI</span>
+                            <i class="fas fa-university text-[10px] text-gray-400"></i>
+                        </div>
+                        <p class="text-sm font-extrabold tracking-tight">Rp 8.500.000</p>
+                    </div>
+                    <div class="dark:bg-carddark bg-white p-3 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded-md">Seabank</span>
+                            <i class="fas fa-shield-halved text-[10px] text-gray-400"></i>
+                        </div>
+                        <p class="text-sm font-extrabold tracking-tight">Rp 4.800.000</p>
+                    </div>
+                    <div class="dark:bg-carddark bg-white p-3 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-extrabold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md">Cash</span>
+                            <i class="fas fa-money-bill-wave text-[10px] text-gray-400"></i>
+                        </div>
+                        <p class="text-sm font-extrabold tracking-tight">Rp 1.500.000</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 grid grid-cols-5 gap-2 mb-6">
+                <button onclick="openModal('Pemasukan')" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 rounded-2xl dark:bg-carddark bg-white dark:border-neutral-800 border border-gray-200 flex items-center justify-center text-green-600 dark:text-brand text-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-center">Pemasukan</span>
+                </button>
+                <button onclick="openModal('Pengeluaran')" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 rounded-2xl dark:bg-carddark bg-white dark:border-neutral-800 border border-gray-200 flex items-center justify-center text-red-500 text-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-center">Pengeluaran</span>
+                </button>
+                <button onclick="openModal('Saving')" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 rounded-2xl dark:bg-carddark bg-white dark:border-neutral-800 border border-gray-200 flex items-center justify-center text-blue-500 dark:text-blue-400 text-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-center">Saving</span>
+                </button>
+                <button onclick="alert('Fitur Laporan Lengkap')" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 rounded-2xl dark:bg-carddark bg-white dark:border-neutral-800 border border-gray-200 flex items-center justify-center text-gray-500 dark:text-gray-400 text-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-center">Rangkuman</span>
+                </button>
+                <button onclick="openCalculator()" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 rounded-2xl dark:bg-carddark bg-white dark:border-neutral-800 border border-gray-200 flex items-center justify-center text-purple-500 dark:text-purple-400 text-lg shadow-sm group-hover:scale-105 transition-transform">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-center">Kalkulator</span>
+                </button>
+            </div>
+
+            <div class="px-6 mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-base">Statistik Keuangan</h3>
+                    <select class="bg-transparent text-xs font-semibold outline-none dark:text-gray-300 text-gray-600 cursor-pointer">
+                        <option>Harian</option>
+                        <option>Mingguan</option>
+                        <option selected>Bulanan</option>
+                    </select>
+                </div>
+                <div class="dark:bg-carddark bg-white rounded-3xl p-4 shadow-sm border dark:border-neutral-800/80 border-gray-200">
+                    <div id="piechart_3d" style="width: 100%; height: 180px;"></div>
+                    <div class="grid grid-cols-3 gap-2 mt-1 text-center border-t dark:border-neutral-800/60 border-gray-100 pt-3">
+                        <div>
+                            <p class="text-[9px] text-gray-400 uppercase font-bold">Masuk</p>
+                            <p class="text-xs font-bold text-green-600 dark:text-brand">Rp 15jt</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 uppercase font-bold">Keluar</p>
+                            <p class="text-xs font-bold text-red-500">Rp 5jt</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 uppercase font-bold">Saving</p>
+                            <p class="text-xs font-bold text-blue-500 dark:text-blue-400">Rp 4.5jt</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 pb-8">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-base">Transaksi Terbaru</h3>
+                    <a href="#" class="text-xs text-green-600 dark:text-brand font-semibold">Lihat Semua</a>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between dark:bg-carddark bg-white p-4 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500 text-sm">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-xs sm:text-sm">Makan Siang</p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[9px] font-bold bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded">Cash</span>
+                                    <p class="text-[10px] text-gray-400">Hari ini, 12:30</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p class="font-bold text-sm text-red-500">- Rp 150.000</p>
+                            <button onclick="openEdit('Makan Siang', 150000, 'Pengeluaran', 'Cash')" class="text-gray-400 hover:text-green-600 dark:hover:text-brand transition"><i class="fas fa-pen text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between dark:bg-carddark bg-white p-4 rounded-2xl border dark:border-neutral-800/80 border-gray-200 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-green-100 dark:bg-brand/10 flex items-center justify-center text-green-600 dark:text-brand text-sm">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-xs sm:text-sm">Gaji Bulanan</p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[9px] font-bold bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded">BNI</span>
+                                    <p class="text-[10px] text-gray-400">Kemarin, 09:00</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p class="font-bold text-sm text-green-600 dark:text-brand">+ Rp 15.000.000</p>
+                            <button onclick="openEdit('Gaji Bulanan', 15000000, 'Pemasukan', 'BNI')" class="text-gray-400 hover:text-green-600 dark:hover:text-brand transition"><i class="fas fa-pen text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dataModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4">
+        <div class="dark:bg-neutral-900 bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 transform transition-all shadow-2xl border dark:border-neutral-800 border-transparent">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modalTitle" class="text-lg font-bold text-gray-900 dark:text-white">Tambah Transaksi</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form class="space-y-4" onsubmit="event.preventDefault(); closeModal();">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1 block">Tipe</label>
+                        <select id="inputType" class="w-full bg-gray-50 dark:bg-darkbg text-gray-900 dark:text-white p-3 rounded-xl border dark:border-neutral-800 border-gray-300 outline-none text-sm font-semibold">
+                            <option value="Pemasukan">Pemasukan</option>
+                            <option value="Pengeluaran">Pengeluaran</option>
+                            <option value="Saving">Saving</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1 block">Sumber Dana</label>
+                        <select id="inputSumber" class="w-full bg-gray-50 dark:bg-darkbg text-gray-900 dark:text-white p-3 rounded-xl border dark:border-neutral-800 border-gray-300 outline-none text-sm font-semibold">
+                            <option value="Cash">Cash</option>
+                            <option value="BRI">BRI</option>
+                            <option value="BNI">BNI</option>
+                            <option value="Seabank">Seabank</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1 block">Nominal</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-400 font-bold">Rp</span>
+                        <input type="number" id="inputNominal" class="w-full bg-gray-50 dark:bg-darkbg text-gray-900 dark:text-white p-3 pl-10 rounded-xl border dark:border-neutral-800 border-gray-300 outline-none font-bold" placeholder="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1 block">Keterangan</label>
+                    <input type="text" id="inputKet" class="w-full bg-gray-50 dark:bg-darkbg text-gray-900 dark:text-white p-3 rounded-xl border dark:border-neutral-800 border-gray-300 outline-none text-sm" placeholder="Contoh: Beli Kopi">
+                </div>
+                <button type="submit" class="w-full bg-brand text-black font-bold py-4 rounded-xl mt-4 shadow-md hover:opacity-90 transition">
+                    Simpan Data
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIKA SPLASH SCREEN & FACE ID (ANIMASI BERURUTAN) ---
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splashScreen');
+            const faceIdScreen = document.getElementById('faceIdScreen');
+            const faceIcon = document.getElementById('faceIcon');
+            const scanLine = document.getElementById('scanLine');
+            const faceFrame = document.getElementById('faceFrame');
+            const faceText = document.getElementById('faceText');
+
+            // 1. Tampilkan Splash Screen selama 1.5 detik
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.transform = 'scale(1.05)';
+                
+                // 2. Sembunyikan Splash, Munculkan Face ID
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    faceIdScreen.style.display = 'flex';
+                    
+                    // Transisi smooth untuk memunculkan Face ID
+                    setTimeout(() => {
+                        faceIdScreen.style.opacity = '1';
+                        scanLine.classList.remove('hidden'); // Mulai animasi garis scan
+                    }, 50);
+
+                    // 3. Proses Scanning Face ID (Simulasi 2 detik)
+                    setTimeout(() => {
+                        // Berhenti scan, ubah jadi sukses
+                        scanLine.classList.add('hidden');
+                        faceIcon.classList.remove('fa-expand', 'text-gray-400');
+                        faceIcon.classList.add('fa-check-circle', 'text-green-500');
+                        faceFrame.classList.remove('border-gray-600');
+                        faceFrame.classList.add('border-green-500');
+                        faceText.innerText = "Verifikasi Berhasil";
+                        faceText.classList.remove('text-gray-300', 'animate-pulse');
+                        faceText.classList.add('text-green-500');
+
+                        // 4. Tutup Face ID Screen setelah sukses
+                        setTimeout(() => {
+                            faceIdScreen.style.opacity = '0';
+                            setTimeout(() => {
+                                faceIdScreen.style.display = 'none';
+                            }, 500); // Tunggu animasi fade out selesai
+                        }, 1000); // Tahan tampilan "Sukses" selama 1 detik
+
+                    }, 2000); // Durasi pemindaian wajah
+                }, 700); // Tunggu Splash fade out
+            }, 1500); // Durasi awal Splash Screen
+        });
+
+        // --- LOGIKA TEMA (GELAP/TERANG) ---
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
+            drawChart();
+        }
+
+        // --- LOGIKA GRAFIK BULAT 3D ---
+        google.charts.load("current", {packages:["corechart"]});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Kategori', 'Jumlah'],
+                ['Pemasukan', 15000000],
+                ['Pengeluaran', 5000000],
+                ['Saving', 4500000]
+            ]);
+
+            var isDark = document.documentElement.classList.contains('dark');
+            var pieColorPemasukan = isDark ? '#b3f028' : '#16a34a'; 
+
+            var options = {
+                backgroundColor: 'transparent',
+                is3D: true,
+                legend: 'none',
+                pieSliceText: 'percentage',
+                colors: [pieColorPemasukan, '#ef4444', '#3b82f6'], 
+                chartArea: {left:10, top:5, width:'95%', height:'95%'}
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+            chart.draw(data, options);
+        }
+
+        // --- LOGIKA MODAL TRANSAKSI ---
+        const modal = document.getElementById('dataModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const inputType = document.getElementById('inputType');
+        const inputSumber = document.getElementById('inputSumber');
+        const inputNominal = document.getElementById('inputNominal');
+        const inputKet = document.getElementById('inputKet');
+
+        function openModal(type) {
+            modalTitle.innerText = "Tambah Transaksi";
+            inputType.value = type;
+            inputSumber.value = "Cash"; 
+            inputNominal.value = "";
+            inputKet.value = "";
+            modal.classList.remove('hidden');
+        }
+
+        function openEdit(ket, nominal, type, sumber) {
+            modalTitle.innerText = "Edit Transaksi";
+            inputType.value = type;
+            inputSumber.value = sumber; 
+            inputNominal.value = nominal;
+            inputKet.value = ket;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+        
+        window.addEventListener('resize', drawChart);
+    </script>
+</body>
+</html>
